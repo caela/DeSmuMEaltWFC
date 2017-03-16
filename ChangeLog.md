@@ -17,15 +17,21 @@ Changes:
 ** 4665 (that was a tricky one, see comments in NDSSystem.cpp and main.cpp)
 ** 5346
 
-*2)Added sensible WFC profile defaults and added code to save in game DNS settings into desmume.ini as new default.
 
+*2) Added sensible WFC profile defaults and added code to save in game DNS settings into desmume.ini as new default.
+
+
+*3) Now using different MAC Addresses than the default one (already improving the scalability of the Friendship code problem).
+
+
+*4) If internal firmware is used: dumping to and reading from a .wfc file in the Battery folder. Setting and patching the MAC address in the internal firmware. Since we are now always working with a correct controlbit, getting things to work again after a DeSmuME restart became less annoying.
 
 
 What works:
 ----------------
 
-You can trade Pokemon over the GTS (also from two local games of the same generation if you start your DeSmuME twice, just make sure only one is connected to the server at the same time)
-Not sure what else is working.
+You can trade Pokemon over the GTS (also from two local games of the same generation if you start your DeSmuME twice, just make sure only one is connected to the server at the same time, or you can use two different computers.)
+Not sure what else is working (wifi-club trade for Pokemon Gen4 not working, but possibly for Gen5 as in some youtube videos).
 
 
 Open Issues:

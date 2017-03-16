@@ -622,7 +622,8 @@ typedef struct _FW_WFCProfile
 	u8 STATUS; //0 means ready?
 	u8 UNK2[7];
 	u8 UNK3;   //use alternative DNS???
-	u8 UNK4[14];
+	u8 UNK4[14]; //this needs likely a split up, first 5 only set if we see some WFC config
+				// the others are also changed by NDS_PatchFirmwareMAC
 	u8 CRC16[2]; //shouldn't it be u16 instead, as in calc_CRC16
 
 } FW_WFCProfile;

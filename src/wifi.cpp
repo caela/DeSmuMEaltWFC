@@ -318,7 +318,7 @@ WifiComInterface* wifiCom;
 // 3: medium logging, for debugging, shows lots of stuff
 // 4: high logging, for debugging, shows almost everything, may slow down
 // 5: highest logging, for debugging, shows everything, may slow down a lot
-#define WIFI_LOGGING_LEVEL 2
+#define WIFI_LOGGING_LEVEL 1
 
 #define WIFI_LOG_USE_LOGC 0
 
@@ -692,10 +692,19 @@ bool WIFI_Init()
 	memset(&wifiMac, 0, sizeof(wifimac_t));
 
 	WIFI_initCRC32Table();
-
+	
 	//altWFC: good place here or earlier?
 	FillWFCProfile();
 
+
+	//altWFC: moved that one here.
+	CurrentWifiHandler->WIFI_GetUniqueMAC(FW_Mac);
+	NDS_PatchFirmwareMAC();
+
+	WIFI_LOG(2, "MAC = %02X:%02X:%02X:%02X:%02X:%02X\n",
+		FW_Mac[0], FW_Mac[1], FW_Mac[2], FW_Mac[3], FW_Mac[4], FW_Mac[5]);
+
+	
 	WIFI_resetRF(&wifiMac.RF);
 
 	wifiMac.powerOn = FALSE;
@@ -717,7 +726,10 @@ bool WIFI_Init()
 
 void WIFI_DeInit()
 {
+	
+	
 	if (wifiCom) wifiCom->DeInit();
+	
 }
 
 void WIFI_Reset()
@@ -725,16 +737,24 @@ void WIFI_Reset()
 
 	//WIFI_LOG(2, "Entering WIFI_Reset.\n");
 
-	NDS_ReadInternalFirmware();
+	/*altWFC: give some info about firmware state and eventually update ini file*/
+	NDS_WriteoutInternalFirmware();
 	UpdateAltDNSinIni();
+
+	/*altWFC: getting the WFC Info from file and patch the Mac address we got into the firmware*/
+	//if ... //should well actually happen only the first time we load a new ROM
+	fetchWFCInfo();
+	WIFI_LOG(2, "MAC = %02X:%02X:%02X:%02X:%02X:%02X\n",
+		FW_Mac[0], FW_Mac[1], FW_Mac[2], FW_Mac[3], FW_Mac[4], FW_Mac[5]);
+	NDS_PatchFirmwareMAC(); //set in the MAC we read from the file and correct the controlbit
+
 
 	memset(&wifiMac, 0, sizeof(wifimac_t));
 
 	WIFI_resetRF(&wifiMac.RF);
 
-	
 	//wifiMac.randomSeed = 1; //altWFC: useful for debugging?
-
+	
 	wifiMac.powerOn = FALSE;
 	wifiMac.powerOnPending = FALSE;
 	
@@ -748,6 +768,8 @@ void WIFI_Reset()
 		wifiCom->Reset();
 
 	bWFCUserWarned = false;
+
+
 }
 
 
@@ -2071,6 +2093,7 @@ bool SoftAP_Init()
 void SoftAP_DeInit()
 {
 	WIFI_LOG(2, "Entering SoftAP_DeInit.\n");
+
 	if(wifi_bridge != NULL)
 		CurrentWifiHandler->PCAP_close(wifi_bridge);
 }
@@ -2150,6 +2173,9 @@ static void SoftAP_Deauthenticate()
 	SoftAP.curPacketSending = TRUE;
 
 	SoftAP.status = APStatus_Disconnected;
+
+	WIFI_LOG(1, "dumpWFCInfo success: %i \n", dumpWFCInfo());
+
 }
 
 void SoftAP_SendPacket(u8 *packet, u32 len)
@@ -2216,6 +2242,7 @@ void SoftAP_SendPacket(u8 *packet, u32 len)
 			case 0xC:		// Deauthentication
 				SoftAP.status = APStatus_Disconnected;
 				WIFI_LOG(1, "SoftAP disconnected\n");
+				WIFI_LOG(1, "dumpWFCInfo success: %i \n", dumpWFCInfo());
 				return;
 
 			default:

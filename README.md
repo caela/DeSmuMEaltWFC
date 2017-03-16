@@ -40,7 +40,9 @@ How to use DeSmuME altWFC:
 ==========================
 
 Currently we only have a working Windowsport.
-Besides Windows, you'll need an ethernet connection and WinPCap installed. WinPCap comes with WireShark, so I recommend you install WireShark, so you additionally can monitor and document your network traffic. There were some reported working alternatives to that in the past. Search the internet for details.
+Besides Windows, you'll need an ethernet connection and WinPCap installed. WinPCap comes with WireShark, so I recommend you install WireShark, so you additionally can monitor and document your network traffic.
+
+If you don't have an ethernet connection an USB Tethered connection via your Android device will also work.
 
 Before you start the executable for the first time:
 * prepare your save file in the game so you would be allowed to enter the GTS
@@ -58,7 +60,8 @@ DON'T USE YOUR OWN ARM7 and ARM9 BINARIES OR YOUR OWN FIRMWARE!!! (It would only
 *Start DeSmuME altWFC as your normal user (WinPCap says its needs the application to be started as Admin once after every real Windowsrestart
 *[This step can be skipped]. Now you can confirm that the Connection Test in the in games Wifi settings gives 'Connection Succesful'.
 *Join the GTS in the game: Your MAC will be bound to your current DeSmuME instance, the immediate reconnect try will fail with 52200 ( I think the AltWFC actually has learned something wrong here...)
-*Reload the ROM (don't restart DeSmuME!). [No longer necessary after latest changes: Go into the Nintendo Wifi settings and test connection, afterwards DON'T reload the ROM, but back out with B B B until the ROM restarts of itself.]
+*Reload the ROM (don't restart DeSmuME!).
+*[No longer necessary after latest changes: Go into the Nintendo Wifi settings and test connection, afterwards DON'T reload the ROM, but back out with B B B until the ROM restarts of itself.]
 *Join the GTS again, this time it will work.
 *As long as you don't close DeSmuME you can go into the GTS and restart your game as often as you want, it will always work (errors can happen but are seldom).
 
@@ -71,6 +74,8 @@ Specials and Troubleshooting:
 *If you want to change from the default AltWFC server to another or your own AltWFC server, just change the DNS info in the games' internal Nintendo Wifi Settings. This info should then also be saved automatically in your desmume.ini settings file at the next NDS reload.
 
 *If you encounter any of the quite seldom communication errors, it might help to go to the in games' Wifi Settings and test the connection from there (and ev. save the settings again). If you are extra kinky don't start the ROM again by reloading, but just by backing out of the settings until the ROM restarts of itself.
+
+*Saving the settings in the in games' Wifi Settings will also allow you to see your Nintendo WFC Configuration again after a DeSmuME restart.
 
 *If you are forced to erase your Nintendo WFC Configuration in the games options, don't confirm the firmware shutdown after erasing it, just reload the game again instead.
 

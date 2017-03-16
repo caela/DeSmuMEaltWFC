@@ -965,7 +965,7 @@ void NDS_PatchFirmwareMAC()
 
 
 /*altWFC: just some test function, will remove again*/
-void NDS_ReadInternalFirmware()
+void NDS_WriteoutInternalFirmware()
 {
 	FW_WFCProfile *IFW_WFCProfileaddr;
 	u8 *IFW_Mac;
@@ -977,6 +977,92 @@ void NDS_ReadInternalFirmware()
 	INFO("MAC is set to: %02X:%02X:%02X:%02X:%02X:%02X\n", IFW_Mac[0], IFW_Mac[1], IFW_Mac[2], IFW_Mac[3], IFW_Mac[4], IFW_Mac[5], IFW_Mac[6]);
 	INFO("***********************************\n");
 }
+
+
+/*altWFC: dump WFC Info to file*/
+/* currently only saved info is the MAC address, should possibly also save the FWC Profile*/
+bool dumpWFCInfo()
+{
+	if (CommonSettings.UseExtFirmware) return false;
+	if (CommonSettings.UseExtFirmwareSettings) return false;
+
+	char infoWFCfile[MAX_PATH] = { 0 };
+	memset(infoWFCfile, 0, MAX_PATH);
+	path.getpathnoext(path.BATTERY, infoWFCfile);
+	std::string infoWFCfileString = std::string(infoWFCfile) + ".wfc";
+
+	INFO("Dumping WFC info to %s\n", infoWFCfileString.c_str());
+	//if (strcmp(infoWFCfileString.c_str(), ".wfc") == 0) return false;
+	
+	FILE *fp = fopen(infoWFCfileString.c_str(), "wb");
+	if (fp)
+	{
+		u8 *wfc = new u8[sizeof(FW_Mac)];
+		if (wfc)
+		{
+			memcpy(wfc, MMU.fw.data + 0x36, sizeof(FW_Mac));
+			//memcpy(wfc + sizeof(FW_Mac), data, USER_SETTINGS_SIZE);
+			//memcpy(wfc + DFC_ID_SIZE + USER_SETTINGS_SIZE, &MMU.fw.data[WIFI_SETTINGS_OFF], WIFI_SETTINGS_SIZE);
+			//memcpy(wfc + DFC_ID_SIZE + USER_SETTINGS_SIZE + WIFI_SETTINGS_SIZE, &MMU.fw.data[WIFI_AP_SETTINGS_OFF], WIFI_AP_SETTINGS_SIZE);
+			if (fwrite(wfc, 1, sizeof(FW_Mac), fp) == sizeof(FW_Mac))
+				INFO(" - done\n");
+			else
+				INFO(" - failed\n");
+
+			delete[] wfc;
+		}
+		fclose(fp);
+	}
+	else
+		INFO(" -- failed\n");
+
+	return true;
+}
+
+/*altWFC: read WFC Info from file*/
+/* currently only saved info is the MAC address, nothing else*/
+bool fetchWFCInfo()
+{
+	if (CommonSettings.UseExtFirmware) return false;
+	if (CommonSettings.UseExtFirmwareSettings) return false;
+
+	char infoWFCfile[MAX_PATH] = { 0 };
+	memset(infoWFCfile, 0, MAX_PATH);
+	path.getpathnoext(path.BATTERY, infoWFCfile);
+	std::string infoWFCfileString = std::string(infoWFCfile) + ".wfc";
+
+	FILE *fp = fopen(infoWFCfileString.c_str(), "rb");
+	if (fp)
+	{
+		INFO("Fetching WFC info from %s\n", infoWFCfileString.c_str());
+		fseek(fp, 0, SEEK_END);
+		if (ftell(fp) == sizeof(FW_Mac))
+		{
+			fseek(fp, 0, SEEK_SET);
+			u8 *wfc = new u8[sizeof(FW_Mac)];
+			if (wfc)
+			{
+				if (fread(wfc, 1, sizeof(FW_Mac), fp) == sizeof(FW_Mac))
+				{
+					memcpy(FW_Mac, wfc, sizeof(FW_Mac));
+					INFO("MAC read from WFC file: %02X:%02X:%02X:%02X:%02X:%02X\n", wfc[0], wfc[1], wfc[2], wfc[3], wfc[4], wfc[5], wfc[6]);
+
+					INFO("Loaded wifi settings from %s\n", infoWFCfileString.c_str());
+
+				}
+				delete[] wfc;
+				wfc = NULL;
+			}
+		}
+		else
+			printf("Failed loading WFC config from %s (wrong file size)\n", infoWFCfileString.c_str());
+
+		fclose(fp);
+	}
+	return false;
+}
+
+
 
 
 
